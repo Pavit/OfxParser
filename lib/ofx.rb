@@ -93,7 +93,7 @@ module OfxParser
   end
 
   class InvestmentAccount < Account
-    attr_accessor :broker_id, :positions, :margin_balance, :short_balance, :cash_balance
+    attr_accessor :broker_id, :positions, :margin_balance, :short_balance, :cash_balance, :availcash, :balances
 
    # include MonetarySupport
 #    monetary_vars :margin_balance, :short_balance, :cash_balance
@@ -101,7 +101,7 @@ module OfxParser
 
 
   class Statement
-    attr_accessor :currency, :transactions, :start_date, :end_date, :stock_positions, :opt_positions
+    attr_accessor :currency, :transactions, :start_date, :end_date, :stock_positions, :opt_positions, :stock_transactions
   end
 
   class Transaction
@@ -153,10 +153,13 @@ module OfxParser
   	attr_accessor :uniqueid, :uniqueid_type, :heldinacct, :type, :units, :unitprice, :pricedate, :memo	
   end
   
-   class Opt_Position
+  class Opt_Position
   	attr_accessor :uniqueid, :uniqueid_type, :heldinacct, :type, :units, :unitprice, :pricedate, :memo, :mktval	
   end 
 
+  class Stock_Transaction
+  	attr_accessor :transid, :tradedate, :settledate, :uniqueid, :uniqueid_type, :units, :unitprice, :commission, :total, :subacctsec, :type
+  end
 
   # Status of a sign on
   class Status

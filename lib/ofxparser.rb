@@ -181,11 +181,19 @@ module OfxParser
     def self.build_investment(doc)
 	  acct = InvestmentAccount.new
 	  acct.broker_id=(doc/"INVSTMTRS/INVACCTFROM/BROKERID").inner_text
-	  acct.cash_balance=(doc/"INVSTMTRS/INVBAL/AVAILCASH").inner_text
-	  
+	  acct.availcash = (doc/"INVSTMTRS/INVBAL/AVAILCASH").inner_text
+	  acct.margin_balance = (doc/"INVSTMTRS/INVBAL/MARGINBALANCE").inner_text
+	  acct.short_balance = (doc/"INVSTMTRS/INVBAL/SHORTBALANCE").inner_text
+
 	  statement = Statement.new
 	  acct.statement=statement
-	    
+
+	
+
+  	#-----------------------------------------------------------------------	   
+	# Ideally we wouldn't need 2 separate classes for different types of positions/transactions. 
+	# Need to find some way to parse informaton based on "POS****" or "BUY****"
+	
 	  statement.stock_positions = (doc/"INVSTMTRS/INVPOSLIST/POSSTOCK").collect do |p|
 	  	build_stock_position(p)
   	  end
@@ -193,9 +201,32 @@ module OfxParser
 	  statement.opt_positions = (doc/"INVSTMTRS/INVPOSLIST/POSOPT").collect do |p|
 	  	build_opt_position(p)
   	  end  	  
+ 
+	  statement.stock_transactions = (doc/"INVSTMTRS/INVTRANLIST/BUYSTOCK")
+	    build_stock_transactions (t)
+	  end
 
+  	  
 	  acct
     end
+	
+    def self.build_stock_transactions(t)
+      stock_transaction = Stock_Transaction.new
+      stock_transaction.transid = (t/"INVBUY/INVTRAN/FITID").inner_text
+      stock_transaction.tradedate = parse_datetime((t/"INVBUY/INVTRAN/DTTRADE").inner_text)
+      stock_transaction.settledate = parse_datetime((t/"INVBUY/INVTRAN/DTSETTLE").inner_text)
+      stock_transaction.uniqueid = (t/"INVBUY/SECID/UNIQUEID").inner_text
+      stock_transaction.uniqueid_type = (t/"INVBUY/SECID/UNIQUEIDTYPE").inner_text
+      stock_transaction.units = (t/"INVBUY/UNITS").inner_text
+      stock_transaction.unitprice = (t/"INVBUY/UNITPRICE").inner_text
+      stock_transaction.commission = (t/"INVBUY/UNITPRICE").inner_text
+      stock_transaction.total = (t/"INVBUY/TOTAL").inner_text
+      stock_transaction.subacctsec = (t/"INVBUY/SUBACCTSEC").inner_text
+      stock_transaction.subacctfund = (t/"INVBUY/SUBACCTFUND").inner_text
+      stock_transaction.type = (t/"BUYTYPE").inner_text
+      stock_transaction
+	end
+
 
 	def self.build_stock_position(p)
 	  stock_position = Stock_Position.new
